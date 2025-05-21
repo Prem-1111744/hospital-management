@@ -1,0 +1,11 @@
+{% extends 'hospitalapp/base.html' %}
+{% block content %}
+<h2>Edit Appoinment</h2>
+
+<form action="" method="post" class="mb-3">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update">
+    <a href="{% url 'patient_dashboard' %}" class="btn btn-secondary">Cancel</a>
+</form>
+    {% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'hospitalapp/base.html' %}
+{% block content %}
+<h2>My Appointment</h2>
+
+<a href="{% url 'createappoinment' %}" class="btn btn-success mb-3">Create New Appointment</a>
+{% if appointments %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appointment in appointments %}
+        <tr>
+            <td>Dr. {{ appointment.doctor.user.username }}</td>
+            <td>{{ appointment.date }}</td>
+            <td>{{ appointment.time }}</td>
+            <td>{{ appointment.description }}</td>
+            <td>
+                <a href="{% url 'editappoinment' appointment.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'deleteappoinment' appointment.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No appointment scheduled.</p>
+{% endif %}
+{% endblock %}
+    

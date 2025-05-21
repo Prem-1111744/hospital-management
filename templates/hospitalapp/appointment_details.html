@@ -1,0 +1,10 @@
+{% extends 'hospitalapp/base.html' %}
+{% block content %}
+<h2>Appointment Details</h2>
+<p><strong>Petaint:</strong>{{ appointment.patient.user.username }}</p>
+<p><strong>Doctor:</strong>{{ appointment.doctor.user.username }}</p>
+<p><strong>Date:</strong>{{ appointment.date }}</p>
+<p><strong>Time:</strong>{{ appointment.time }}</p>
+<p><strong>Description:</strong>{{ appointment.description }}</p>
+<a href="{% url 'patient_dashboard' %}">Back</a>
+{% endblock %}

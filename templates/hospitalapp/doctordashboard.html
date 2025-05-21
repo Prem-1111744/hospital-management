@@ -1,0 +1,29 @@
+{% extends 'hospitalapp/base.html' %}
+{% block content %}
+<h2>Appointment For You</h2>
+{% if appointments %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Desctiption</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appointment in appointments %}
+        <tr>
+            <td>{{ appointment.patient.user.username }}</td>
+            <td>{{ appointment.date }}</td>
+            <td>{{ appointment.time }}</td>
+            <td>{{ appointment.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>No appointments yet.</p>
+{% endif %}
+{% endblock %}
+    

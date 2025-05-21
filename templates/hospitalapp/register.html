@@ -1,0 +1,41 @@
+{% extends 'hospitalapp/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Register</h2>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger">{{ message.tags }}
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% endif %}
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="username">Username:</label>
+            <input class="form-control" type="text" name="username" required><br>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-control" type="email" name="email" required><br>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Password:</label>
+            <input class="form-control" type="password" name="password" required><br>
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input type="password" name="confirm_password" class="form-control" required>
+        </div><br>
+        <div class="mb-3"><label class="form-label" for="">User Type</label>
+            <select name="user_type" id="" required>
+                <option value="">Select</option>
+                <option value="doctor">Doctor</option>
+                <option value="patient">Patient</option>
+            </select>
+        </div><br>
+        <button class=" btn btn-primary" type="submit">Register</button><br>
+        <a href="{% url 'login' %}">Already have an account?</a>
+    </form>
+</div>
+{% endblock %}

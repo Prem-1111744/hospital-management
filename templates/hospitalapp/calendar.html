@@ -1,0 +1,37 @@
+{% extends 'hospitalapp/base.html' %}
+{% block content %}
+<h2>Appointment Calendar</h2>
+<div id="calendar"></div>
+
+<link href="https://unpkg.com/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+<script src="https://unpkg.com/fullcalendar@6.1.8/main.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEL = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEL, {
+            initialView: 'dayGridMonth',
+            events: '{% url "calendar_data" %}',
+            height: 'auto',
+
+            eventClick:function(info){
+                info.jsEvent.preventDefault();
+                if (info.event.url){
+                    window.location.href=info.event.url;
+                }
+            },
+            eventDidMount:function(info){
+                info.el.setAttribute('title',info.event.extendedProps.description);
+            }
+        });
+        calendar.render();
+    });
+</script>
+
+<style>
+    #calendar {
+        height: 900px;
+        margin: 40px auto;
+    }
+</style>
+{% endblock %}
