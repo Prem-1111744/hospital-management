@@ -1,5 +1,70 @@
 {% extends 'hospitalapp/base.html' %}
+{% load static %}
 {% block content %}
-<h2>Admin Dashboard</h2>
-<a href="{% url 'admin:index' %}">Admin</a>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Admin Dashboard</h2>
+    
+    
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Doctors</h5>
+        </div>
+      
+        <ul class="list-group list-group-flush">
+        {% for doc in doctor %}
+        <li class="list-group-item"><strong>{{ doc.get_full_name }}</strong>{{ doc.email }}</li>
+        {% empty %}
+        <li class="list-group-item text-muted">no doctor found.</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4 class="mt-4">Patients</h4>
+        </div>    
+        <ul class="list-group list-group-flush">
+            {% for patien in patient %}
+            <li class="list-group-item">{{ patien.get_full_name }} {{ patien.email }}</li>
+            {% empty %}
+            <li class="list-group-item text-muted">no patient found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Appointments</h4>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Patient </th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appoinment in appointment %}
+                    <tr>
+                        <td>{{ appoinment.patient.user.username }}</td>
+                        <td>{{ appoinment.doctor.user.username}}</td>
+                        <td>{{ appoinment.date }}</td>
+                        <td>{{ appoinment.time }}</td>
+                        <td>{{ appoinment.description }}</td>
+                        <td>
+                            <a href="{% url 'admin_update_form' appoinment.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'admin_delete_form' appoinment.id %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-muted text-center">no appointments found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}

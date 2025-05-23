@@ -1,29 +1,39 @@
 {% extends 'hospitalapp/base.html' %}
 {% block content %}
-<h2>Appointment For You</h2>
-{% if appointments %}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Patient</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Desctiption</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for appointment in appointments %}
-        <tr>
-            <td>{{ appointment.patient.user.username }}</td>
-            <td>{{ appointment.date }}</td>
-            <td>{{ appointment.time }}</td>
-            <td>{{ appointment.description }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-    <p>No appointments yet.</p>
-{% endif %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Appointment For You</h2>
+</div>
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0 text-center">Upcoming Appointments</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if appointments %}
+        <table class="table mb-0 table-striped">
+            <thead class="table-light">
+            <tr>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Desctiption</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.patient.user.username }}</td>
+                <td>{{ appointment.date }}</td>
+                <td>{{ appointment.time }}</td>
+                <td>{{ appointment.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% else %}
+            <tr><td colspan="3" class="text-muted text-center">No appointments yet.</td></tr>
+        {% endif %}
+        </table>
+    </div>
+</div>
+
 {% endblock %}
     

@@ -5,7 +5,7 @@ from django.utils import timezone
 import datetime
 # Create your models here.
 class CustomUser(AbstractUser):
-    USER_TYPES=(('doctor','Doctor'),('patient','Patient'))
+    USER_TYPES=(('doctor','Doctor'),('patient','Patient'),('admin','Admin'))
     user_type=models.CharField(max_length=10,choices=USER_TYPES)
     def __str__(self):
         return self.username
@@ -14,7 +14,7 @@ class Doctor(models.Model):
     user=models.OneToOneField(CustomUser,on_delete=models.CASCADE)
     specialization=models.CharField(max_length=100)
     def __str__(self):
-        return self.user.username
+        return self.user.username or self.user.get_full_name()
 
 class Patient(models.Model):
     user=models.OneToOneField(CustomUser,on_delete=models.CASCADE)

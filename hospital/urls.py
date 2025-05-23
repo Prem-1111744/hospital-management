@@ -20,5 +20,5 @@ from hospitalapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/',include('hospitalapp.urls'))
+    path('',include('hospitalapp.urls'))
 ]

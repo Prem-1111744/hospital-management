@@ -4,7 +4,7 @@ from hospitalapp import views
 urlpatterns=[
     path('',views.home,name='home'),
     path('login/',views.login_views,name='login'),
-    path('admin/dashboard/',views.admin_dashboard,name='admin_dashboard'),
+    path('admin-dashboard/',views.admin_dashboard,name='admin_dashboard'),
     path('doctor/dashboard/',views.doctordashboard,name='doctor_dashboard'),
     path('patient/dashboard/',views.patientdashboard,name='patient_dashboard'),
     path('appoinment/create/',views.creat_appoinment,name='createappoinment'),
@@ -16,5 +16,7 @@ urlpatterns=[
     path('register/',views.register_view,name='register'),
     path('appointment/<int:appointment_id>/detail/',views.appointment_details,name='appointment_details'),
     path('forgot-password/',views.forgot_password,name='forgot_password'),
-    path('resate-password/<str:token>/',views.resete_password,name='resate_password')
+    path('resate-password/<str:token>/',views.resete_password,name='resate_password'),
+    path('admin-appointment/<int:appointment_id>/edit/',views.admin_update_form,name='admin_update_form'),
+    path('admin-appointment/<int:appointment_id>/delete/',views.admin_delete_form,name='admin_delete_form')
 ]

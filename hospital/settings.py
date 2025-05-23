@@ -135,8 +135,19 @@ AUTH_USER_MODEL='hospitalapp.CustomUser'
 
 # login url
 
-LOGIN_URL='/home/login/'
+LOGIN_URL='/login/'
 
 #email backend
 EMAIL_BACKEND=config('EMAIL_BACKEND')
 SENDGRID_API_KEY =config('SENDGRID_API_KEY')
+
+# for style
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'secondary',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',  # green
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',     # red
+}

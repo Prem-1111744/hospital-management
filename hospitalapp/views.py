@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login,logout
 from hospitalapp.models import Appointment,Doctor,Patient,CustomUser
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from hospitalapp.form import AppoinmentForm,Forgot_password_form,ReseteForgotPassword
 from django.http import HttpResponse,JsonResponse,HttpResponseBadRequest,HttpResponseForbidden
 from django.contrib import messages
@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 import secrets
 from .models import PasswordResetToken
+from django.contrib.auth.models import User
 
 
 def register_view(request):
@@ -78,9 +79,6 @@ def creat_appoinment(request):
 
     return render(request, 'hospitalapp/createappoinment.html', {'form': form})
 
-def admin_dashboard(request):
-    return render(request,'hospitalapp/admindashboard.html')
-
 def logout_view(request):
     try:
         logout(request)
@@ -109,9 +107,7 @@ def calendar_data(request):
            'title': f"{app.patient.user.username} with Dr. {app.doctor.user.username}",
            'start': f"{app.date} t {app.time}",
            'description':app.description,
-           'url': reverse('appointment_details',args=[app.id]),
-           'color':'#28a745',
-           })
+           'url': reverse('appointment_details',args=[app.id]),})
     return JsonResponse(data,safe=False)
 
 @login_required
@@ -130,7 +126,7 @@ def edit_appoinment(request,appointment_id):
             appointment=form.save(commit=False)
             appointment.patient=Patient.objects.get(user=request.user)
             appointment.save()
-            messages.success('appointment updated successfuly')
+            messages.success( request,'appointment updated successfuly')
             # If user is patient, set patient explicitly
             
             return redirect('patient_dashboard')
@@ -187,7 +183,7 @@ def login_views(request):
 
         if user is not None:
             login(request, user)  # ✅ called only if user is valid
-            if user.is_superuser:
+            if user.user_type == 'admin':
                 return redirect('admin_dashboard')
             elif user.user_type == 'doctor':
                 return redirect('doctor_dashboard')
@@ -200,30 +196,24 @@ def login_views(request):
     return render(request, 'hospitalapp/login.html', {'error': error})
 
 User=get_user_model()
-reset_token={}
 def forgot_password(request):
     if request.method == 'POST':
-        form=Forgot_password_form(request.POST)
-        if form.is_valid():
-            email=form.cleaned_data['email']
-            try:
+        email=request.POST.get('email')
+        new_password=request.POST.get('new_password')
+        confirm_password=request.POST.get('confirm_password')
+        try:
                 user=User.objects.get(email=email)
-                token=secrets.token_urlsafe(20)
-                #reset_token[token]=user.username
-                PasswordResetToken.objects.create(user=user,token=token)
-                reset_link=request.build_absolute_uri(f'/resete-password/{token}/')
-                send_mail(
-                    'password_resete_link',
-                    f'Click here to resete your password:{reset_link}',
-                    'noreply@yourapp.com',
-                    recipient_list=[user.email]
-                )
-                messages.success(request,'A password resete link has been sent to your email')
-            except User.DoesNotExist:
-                messages.error(request,'no user with this email found')
-    else:
-        form=Forgot_password_form()
-    return render(request,'hospitalapp/forgot_password.html',{'form':form})
+        except User.DoesNotExist:
+                messages.error(request,'user does not exist')
+                return redirect('forgot_password')
+        if new_password != confirm_password:
+                messages.error(request,'password do not match')
+                return redirect('forgot_password')
+        user.set_password(new_password)
+        user.save()
+        messages.success(request,'password chenged successfully')
+        return redirect('login')
+    return render(request,'hospitalapp/forgot_password.html')
 
 
 def resete_password(request,token):
@@ -244,4 +234,44 @@ def resete_password(request,token):
         form=ReseteForgotPassword()
     return redirect(request,'hospitalapp/resete_password.html',{'form':form})
     
+def is_admin(user):
+    return user.is_authenticated and user.user_type == 'admin'
 
+@login_required
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    if request.user.user_type != 'admin':
+        messages.error(request,'you are not registerd for admin ')
+        return redirect('home')
+    total_doctor=CustomUser.objects.filter(user_type='doctor')
+    total_patient=CustomUser.objects.filter(user_type='patient')
+    total_appointment=Appointment.objects.select_related('doctor','patient').all()
+
+    return render(request,'hospitalapp/admindashboard.html',{
+            'doctor':total_doctor,
+            'patient':total_patient,
+            'appointment':total_appointment
+        })
+
+def admin_update_form(request,appointment_id):
+    appointment=get_object_or_404(Appointment,id=appointment_id)       
+    
+    if request.method == 'POST':
+        form=AppoinmentForm(request.POST or None,instance=appointment)
+        if form.is_valid():
+            form.save()
+            
+            messages.success(request,'Appointment updated successfully')
+            return redirect('admin_dashboard')
+    else:
+        form=AppoinmentForm(instance=appointment)
+    return render(request,'hospitalapp/admin_update_form.html',{'form':form})
+
+
+def admin_delete_form(request,appointment_id):
+    appointment=get_object_or_404(Appointment,id=appointment_id)
+    if request.method == 'POST':
+        appointment.delete()
+        messages.success(request,'Appointment deleted successfully')
+        return redirect('admin_dashboard')
+    return render(request,'hospitalapp/admin_delete_form.html',{'appointment':appointment})
