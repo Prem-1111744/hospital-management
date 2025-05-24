@@ -11,11 +11,11 @@ CustomUser = get_user_model()
 
 class HospitalAppTests(TestCase):
     def setUp(self):
-        # Create users
+       
         self.doctor_user = CustomUser.objects.create_user(username='drjohn', password='Test@1234', user_type='doctor')
         self.patient_user = CustomUser.objects.create_user(username='patbob', password='Test@1234', user_type='patient')
 
-        # Create profiles
+       
         self.doctor = Doctor.objects.create(user=self.doctor_user, specialization='Cardiology')
         self.patient = Patient.objects.create(user=self.patient_user, age=30, address='Somewhere')
 
@@ -40,13 +40,12 @@ class HospitalAppTests(TestCase):
             'time': '10:00',
             'description': 'Routine checkup'
         })
-        self.assertEqual(response.status_code, 302)  # Redirect to patient dashboard
+        self.assertEqual(response.status_code, 302)  
 
         appointment = Appointment.objects.get(patient=self.patient)
         self.assertEqual(appointment.description, 'Routine checkup')
 
     def test_appointment_shown_to_doctor(self):
-        # Create an appointment
         Appointment.objects.create(
             doctor=self.doctor,
             patient=self.patient,

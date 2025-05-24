@@ -23,11 +23,9 @@ def register_view(request):
         password = request.POST.get('password')
         conform_password=request.POST.get('confirm_password')
         user_type = request.POST.get('user_type')
-
         if CustomUser.objects.filter(username=username).exists():
             messages.error(request, 'Username already taken.')
-            return redirect('register')
-        
+            return redirect('register')        
         if password != conform_password:
             messages.error(request,"This password is too short")
             return redirect('register')
@@ -37,46 +35,38 @@ def register_view(request):
             for error in e:
                 messages.error(request,error)
             return redirect('register')
-
         user = CustomUser(
             username=username,
             email=email,
             user_type=user_type,
-            password=make_password(password)
-        )
+            password=make_password(password)        )
         user.save()
-
         if user_type == 'doctor':
             Doctor.objects.create(user=user, specialization='Not set')
         elif user_type == 'patient':
             Patient.objects.create(user=user, age=0, address='')
-
         login(request, user)
         messages.success(request, 'Registration successful.')
         return redirect('login')
-
     return render(request, 'hospitalapp/register.html')
 
 @login_required
 def creat_appoinment(request):
-    # Check if the logged-in user is a patient
     try:
         patient = Patient.objects.get(user=request.user)
     except Patient.DoesNotExist:
         return HttpResponseBadRequest('<h1>You are not registered as a patient.</h1>')
-
     if request.method == "POST":
         form = AppoinmentForm(request.POST)
         if form.is_valid():
             appointment = form.save(commit=False)
-            appointment.patient = patient  # Set the patient
+            appointment.patient = patient  
             appointment.doctor=form.cleaned_data['doctor']
-            appointment.save()  # Save appointment
+            appointment.save()  
             messages.success(request, "Appointment created successfully.")
             return redirect('patient_dashboard')
     else:
         form = AppoinmentForm()
-
     return render(request, 'hospitalapp/createappoinment.html', {'form': form})
 
 def logout_view(request):
@@ -85,8 +75,6 @@ def logout_view(request):
     except:
         return HttpResponse('you are loged out ')
     return redirect('login')
-
-
 
 @login_required
 def appoinment_calendar(request):
@@ -101,7 +89,6 @@ def appointment_details(request,appointment_id):
 def calendar_data(request):
     appoinment=Appointment.objects.all()
     data=[]
-
     for app in appoinment:
         data.append({
            'title': f"{app.patient.user.username} with Dr. {app.doctor.user.username}",
@@ -119,16 +106,13 @@ def edit_appoinment(request,appointment_id):
         return HttpResponseForbidden('<h1>only patients can edit appointments</h1>')
     if appointment.patient != patient:
         return HttpResponseForbidden('<h1>you are not authorized to edit this appointment</h1>')
-
     if request.method=="POST":
         form=AppoinmentForm(request.POST,instance=appointment)
         if form.is_valid():
             appointment=form.save(commit=False)
             appointment.patient=Patient.objects.get(user=request.user)
             appointment.save()
-            messages.success( request,'appointment updated successfuly')
-            # If user is patient, set patient explicitly
-            
+            messages.success( request,'appointment updated successfuly')            
             return redirect('patient_dashboard')
     else:
         form=AppoinmentForm(instance=appointment)
@@ -143,11 +127,7 @@ def delete_appoinment(request,appointment_id):
         appoinment.delete()
         messages.success(request,'Appoinment deleted')
         return redirect('patient_dashboard')
-    return render(request,'hospitalapp/deleteappoinment.html',{'appoinment':appoinment})
-    
-    
-
-
+    return render(request,'hospitalapp/deleteappoinment.html',{'appoinment':appoinment})   
 
 def home(request):
     return render(request,'hospitalapp/home.html')
@@ -159,7 +139,6 @@ def doctordashboard(request):
         appointment= Appointment.objects.filter(doctor=doctor)
     except Doctor.DoesNotExist:
         appointment=[]
-
     return render(request,'hospitalapp/doctordashboard.html',{'appointments':appointment})
 
 @login_required
@@ -169,11 +148,10 @@ def patientdashboard(request):
         appointments = Appointment.objects.filter(patient=patient)
     except Patient.DoesNotExist:
         appointments = []
-
     return render(request, 'hospitalapp/patientdashboard.html', {'appointments': appointments})
 
 def login_views(request):
-    error = None  # default: no error
+    error = None  
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -182,7 +160,7 @@ def login_views(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)  # ✅ called only if user is valid
+            login(request, user) 
             if user.user_type == 'admin':
                 return redirect('admin_dashboard')
             elif user.user_type == 'doctor':
@@ -190,9 +168,7 @@ def login_views(request):
             elif user.user_type == 'patient':
                 return redirect('patient_dashboard')
         else:
-            messages.error(request,"Invalid username or password")
-
-    # ✅ for GET request, just render the form — no login() called here
+            messages.error(request,"Invalid username or password")  
     return render(request, 'hospitalapp/login.html', {'error': error})
 
 User=get_user_model()
@@ -246,7 +222,6 @@ def admin_dashboard(request):
     total_doctor=CustomUser.objects.filter(user_type='doctor')
     total_patient=CustomUser.objects.filter(user_type='patient')
     total_appointment=Appointment.objects.select_related('doctor','patient').all()
-
     return render(request,'hospitalapp/admindashboard.html',{
             'doctor':total_doctor,
             'patient':total_patient,
@@ -254,13 +229,11 @@ def admin_dashboard(request):
         })
 
 def admin_update_form(request,appointment_id):
-    appointment=get_object_or_404(Appointment,id=appointment_id)       
-    
+    appointment=get_object_or_404(Appointment,id=appointment_id)           
     if request.method == 'POST':
         form=AppoinmentForm(request.POST or None,instance=appointment)
         if form.is_valid():
-            form.save()
-            
+            form.save()            
             messages.success(request,'Appointment updated successfully')
             return redirect('admin_dashboard')
     else:

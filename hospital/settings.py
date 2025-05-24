@@ -78,14 +78,13 @@ WSGI_APPLICATION = 'hospital.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',  # or 'django.db.backends.postgresql', etc.
+        'NAME': BASE_DIR / 'db.sqlite3',        # path for SQLite
     }
 }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -141,13 +140,5 @@ LOGIN_URL='/login/'
 EMAIL_BACKEND=config('EMAIL_BACKEND')
 SENDGRID_API_KEY =config('SENDGRID_API_KEY')
 
-# for style
-from django.contrib.messages import constants as messages
 
-MESSAGE_TAGS = {
-    messages.DEBUG: 'secondary',
-    messages.INFO: 'info',
-    messages.SUCCESS: 'success',  # green
-    messages.WARNING: 'warning',
-    messages.ERROR: 'danger',     # red
-}
+
